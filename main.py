@@ -2,32 +2,36 @@ from suds.client import Client
 import json
 import config
 
+# file config.py contains WSDL url and authentication info
 wsdl = config.wsdl
-uname = config.uname
-pwd = config.pwd
+username = config.uname
+password = config.pwd
 
-client = Client(wsdl, username=uname, password=pwd)
+client = Client(wsdl, username=username, password=password)
 
-# parametros de controle deste webservice especifico
+# variables specific to this WebService scenario:
 nRegistro = 0
 totalRegistros = 0
-tabela = {}
+dateValue = '1999-01-01'
+result = {}
 
 while True:
-    #service.[NOME DO METODO]
-    result = client.service.SI_DadoMestre_LocInstalacao_Octopus_Sync_Out('1999-01-01',nRegistro)
+    #service.[METHOD], this changes with every webservice
+    SOAPresponse = client.service.SI_DadoMestre_LocInstalacao_Octopus_Sync_Out(dateValue,nRegistro)
 
-    #controle de execução fracionada deste webservice
+    #WHILE flow control
     ultimoRegistro = nRegistro
-    nRegistro = result.nRegistro
-    totalRegistros = result.totalRegistros
+    nRegistro = SOAPresponse.nRegistro
+    totalRegistros = SOAPresponse.totalRegistros
 
+    # Success messages
     print('\n\n----------------------------')
     print('nRegistro: ', nRegistro)
     print('totalRegistros: ', totalRegistros)
     print('----------------------------\n\n')
 
-    for line, value in enumerate(result.localInstalacaoResponse):
+    # Add SOAPResponse attributes to result structure
+    for line, value in enumerate(SOAPresponse.localInstalacaoResponse):
         indice = line + 1 + ultimoRegistro
         
         item = {'status': value.status, 
@@ -38,13 +42,13 @@ while True:
                 'grupoPlanejamento': value.grupoPlanejamento}
 
         print(indice, value.descricao)
-        tabela[indice] = item
+        result[indice] = item
 
-    if result.nRegistro == result.totalRegistros:
-        # print(json.dumps(tabela,indent=4))
+    if nRegistro == totalRegistros:
+        # print(json.dumps(result,indent=4))
         break
 
-js = json.dumps(tabela)
-arquivo = open('resultado.json', 'a')
+js = json.dumps(result)
+arquivo = open('result.json', 'a')
 arquivo.write(js)
 arquivo.close()
