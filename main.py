@@ -8,8 +8,14 @@ import config
 wsdl = config.wsdl
 username = config.uname
 password = config.pwd
+wsdlMethods = []
 
 client = Client(wsdl, username=username, password=password)
+
+#list all available methods
+for method in client.wsdl.services[0].ports[0].methods.values():
+    wsdlMethods.append(method.name)
+    print('%s(%s)' % (method.name, ', '.join('%s: %s' % (part.type, part.name) for part in method.soap.input.body.parts)))
 
 # variables specific to this WebService scenario:
 nRegistro = 0
