@@ -1,3 +1,5 @@
+# This Python file uses the following encoding: utf-8
+
 from suds.client import Client
 import json
 import config
@@ -33,7 +35,7 @@ while True:
     # Add SOAPResponse attributes to result structure
     for line, value in enumerate(SOAPresponse.localInstalacaoResponse):
         indice = line + 1 + ultimoRegistro
-        
+
         item = {'status': value.status, 
                 'localInstalacao': value.localInstalacao, 
                 'descricao': value.descricao, 
