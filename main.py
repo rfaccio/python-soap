@@ -8,20 +8,26 @@ pwd = config.pwd
 
 client = Client(wsdl, username=uname, password=pwd)
 
+# parametros de controle deste webservice especifico
 nRegistro = 0
 totalRegistros = 0
 tabela = {}
 
 while True:
-    res = client.service.SI_DadoMestre_LocInstalacao_Octopus_Sync_Out('1999-01-01',nRegistro)
+    #service.[NOME DO METODO]
+    result = client.service.SI_DadoMestre_LocInstalacao_Octopus_Sync_Out('1999-01-01',nRegistro)
+
+    #controle de execução fracionada deste webservice
     ultimoRegistro = nRegistro
-    nRegistro = res.nRegistro
-    totalRegistros = res.totalRegistros
+    nRegistro = result.nRegistro
+    totalRegistros = result.totalRegistros
+
     print('\n\n----------------------------')
     print('nRegistro: ', nRegistro)
     print('totalRegistros: ', totalRegistros)
     print('----------------------------\n\n')
-    for line, value in enumerate(res.localInstalacaoResponse):
+
+    for line, value in enumerate(result.localInstalacaoResponse):
         indice = line + 1 + ultimoRegistro
         
         item = {'status': value.status, 
@@ -34,7 +40,7 @@ while True:
         print(indice, value.descricao)
         tabela[indice] = item
 
-    if res.nRegistro == res.totalRegistros:
+    if result.nRegistro == result.totalRegistros:
         # print(json.dumps(tabela,indent=4))
         break
 
