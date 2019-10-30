@@ -25,7 +25,9 @@ result = {}
 
 while True:
     #service.[METHOD], this changes with every webservice
-    SOAPresponse = client.service.SI_DadoMestre_LocInstalacao_Octopus_Sync_Out(dateValue,nRegistro)
+    print(wsdlMethods[0])
+    SOAPresponse = getattr(client.service, wsdlMethods[0])(dateValue,nRegistro)
+    #SOAPresponse = client.service.SI_DadoMestre_LocInstalacao_Octopus_Sync_Out(dateValue,nRegistro)
 
     #WHILE flow control
     ultimoRegistro = nRegistro

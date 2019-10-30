@@ -46,7 +46,8 @@ MANIFEST
 .history
 
 # End of https://www.gitignore.io/api/python,visualstudiocode
-
+.vscode
+results/*
 config.py
 resultado.json
 result.json
