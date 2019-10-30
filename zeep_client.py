@@ -1,6 +1,6 @@
 import json
 import operator
-
+from datetime import datetime
 import zeep
 from requests import Session
 from requests.auth import HTTPBasicAuth  # or HTTPDigestAuth, or OAuth1, etc.
@@ -45,7 +45,7 @@ def send_request(url, data):
 
 #test cases
 # 0 = Simple SOAP teste with one WSDL
-if input('Simple test [0] or Octopus Test? [1]: >') == '0':
+if input('Simple test [0] or Octopus Test? [1]:> ') == '0':
     #SOAPrequest parameters
     req_data = {'dataUltimoEnvio': '1999-01-01',
                 'ultimoRegistro': '0'}
@@ -69,6 +69,7 @@ else:
                     'ultimoRegistro': '0'}
 
         while True:
+            print('\n----- %s -----' % datetime.now())
             r = send_request(wsdlAttributes['url'], req_data)
 
             if r != None:
@@ -81,7 +82,7 @@ else:
                 SOAPresponse = open(filename, 'a')
                 SOAPresponse.write(js)
                 SOAPresponse.close()
-
+                print('\n----- %s -----\n' % datetime.now())
                 req_data['ultimoRegistro'] = r['nRegistro']
 
                 if r['nRegistro'] == r['totalRegistros']:
