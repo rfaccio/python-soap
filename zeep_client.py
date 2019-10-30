@@ -33,11 +33,12 @@ def send_request(url, data):
                 signature = operation.input.signature()
 
     #client.service.[METHOD](<parameters>)
-    #check if method signature contains specific parameters    
+
+    #check if method signature contains specific parameters
     if 'dataUltimoEnvio' in signature:
-        r = getattr(client.service, wsdlMethods[0])(req_data['dataUltimoEnvio'],req_data['ultimoRegistro']) #getattr dynamically calls a method from the WSDL structure inspected above
+        r = getattr(client.service, wsdlMethods[0])(data['dataUltimoEnvio'],data['ultimoRegistro']) #getattr dynamically calls a method from the WSDL structure inspected above
     elif 'ultimoRegistro' in signature:
-        r = getattr(client.service, wsdlMethods[0])(req_data['ultimoRegistro'])
+        r = getattr(client.service, wsdlMethods[0])(data['ultimoRegistro'])
     else:
         r = None
     return r
