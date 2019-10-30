@@ -1,10 +1,13 @@
-import zeep
+import json
 import operator
+
+import zeep
 from zeep.wsse.username import UsernameToken
+from zeep.transports import Transport
+
 from requests.auth import HTTPBasicAuth  # or HTTPDigestAuth, or OAuth1, etc.
 from requests import Session
-from zeep.transports import Transport
-import json
+
 import config
 
 #integration = name of SOAP integration to be used, contains 'url' and 'response' attributes
@@ -50,7 +53,7 @@ if input('Simple test [0] or Octopus Test? [1]: >') == '0':
     req_data = {'dataUltimoEnvio': '1999-01-01',
                 'ultimoRegistro': '0'}
 
-    r = send_request(config.wsdlList['localInstalacao']['url'], req_data)
+    r = send_request(config.wsdlList['localInstalacao'], req_data)
 
     print(r['localInstalacaoResponse'])
     input_dict = zeep.helpers.serialize_object(r)

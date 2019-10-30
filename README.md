@@ -1,10 +1,9 @@
 # python-soap
-## **Using SUDS**:
 ### **Install suds-jurko**
 
 `pip install suds-jurko`
 
-### **Using ZEEP**
+### **Install ZEEP**
 
 `pip install zeep`
 
@@ -27,3 +26,5 @@ wsdlList = {'integrationName': {
 ```
 
 Change code according to webservice definition, results may be saved in JSON format.
+
+### Run either suds_client.py or zeep_client.py
