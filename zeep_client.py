@@ -9,7 +9,7 @@ import config
 
 #integration = name of SOAP integration to be used, contains 'url' and 'response' attributes
 #data = SOAPrequest parameters
-def send_request(integration, data):
+def send_request(url, data):
     #get wsdl information from config.py file
     #wsdl = config.wsdlList[integration]
     wsdlMethods = []
@@ -18,7 +18,7 @@ def send_request(integration, data):
     session = Session()
     session.auth = HTTPBasicAuth(config.uname,config.pwd)
     transport = Transport(session=session)
-    client = zeep.Client(config.wsdlList[integration]['url'], transport=transport)
+    client = zeep.Client(url, transport=transport)
 
     #get method names
     for service in client.wsdl.services.values():
@@ -49,27 +49,37 @@ if input('Simple test [0] or Octopus Test? [1]: >') == '0':
     #SOAPrequest parameters
     req_data = {'dataUltimoEnvio': '1999-01-01',
                 'ultimoRegistro': '0'}
-    r = send_request('localInstalacao', req_data)
+
+    r = send_request(config.wsdlList['localInstalacao']['url'], req_data)
+
     print(r['localInstalacaoResponse'])
+    input_dict = zeep.helpers.serialize_object(r)
+    js = json.dumps(input_dict, indent=4)
+    filename = 'localInstalacao-' + str(r['nRegistro']) + '.json'
+    arquivo = open(filename, 'a')
+    arquivo.write(js)
+    arquivo.close()
 
 # 1 = Full Octopus test
 else:
     #config.octopusList contains multiples WSDL urls
-    for n, integration in enumerate(config.wsdlList):
+    for index, (name, values) in enumerate(config.wsdlList.items()):
         #SOAPrequest parameters
         req_data = {'dataUltimoEnvio': '1999-01-01',
                     'ultimoRegistro': '0'}
 
         while True:
-            r = send_request(integration, req_data)
+            r = send_request(values['url'], req_data)
             if r != None:
                 print('nRegistro: ', r['nRegistro'])
                 print('Total Registros: ', r['totalRegistros'])
-                response = str([r[config.wsdlList[integration]['response']]])
+                response = str([r[values['response']]])
 
-                filename = 'results/' + str(n) + '-' + integration + '-' + str(r['nRegistro']) + '.txt'
+                input_dict = zeep.helpers.serialize_object(r)
+                js = json.dumps(input_dict, indent=4)
+                filename = 'results/' + str(index) + '-' + name + '-' + str(r['nRegistro']) + '.json'
                 arquivo = open(filename, 'a')
-                arquivo.write(response)
+                arquivo.write(js)
                 arquivo.close()
 
                 req_data['ultimoRegistro'] = r['nRegistro']
