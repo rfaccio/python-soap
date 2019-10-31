@@ -6,8 +6,22 @@ from requests import Session
 from requests.auth import HTTPBasicAuth  # or HTTPDigestAuth, or OAuth1, etc.
 from zeep.transports import Transport
 from zeep.wsse.username import UsernameToken
-
+from zeep.plugins import HistoryPlugin
+from lxml import etree
+import os
 import config
+
+def save_xml(path, filename, content):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        filename = path + filename
+        SOAPresponse = open(filename, 'a')
+        SOAPresponse.write()
+        SOAPresponse.close()
+    except (IndexError, TypeError):
+        # catch cases where it fails before being put on the wire
+        pass
 
 #url = WSDL url
 #data = SOAPrequest parameters
@@ -17,8 +31,9 @@ def send_request(url, data):
     #authentication and client initialization
     session = Session()
     session.auth = HTTPBasicAuth(config.uname,config.pwd)
+    history = HistoryPlugin()
     transport = Transport(session=session)
-    client = zeep.Client(url, transport=transport)
+    client = zeep.Client(url, transport=transport, plugins=[history])
 
     #get method names
     for service in client.wsdl.services.values():
@@ -41,6 +56,9 @@ def send_request(url, data):
         r = getattr(client.service, wsdlMethods[0])(data['ultimoRegistro'])
     else:
         r = None
+    filename = wsdlMethods[0] + '-' + str(data['ultimoRegistro']) + '.xml'
+    save_xml('results/xml', '/SOAPRequest-' + filename, etree.tostring(history.last_sent["envelope"], encoding="unicode", pretty_print=True))
+    save_xml('results/xml', '/SOAPResponse-' + filename, etree.tostring(history.last_received["envelope"], encoding="unicode", pretty_print=True))
     return r
 
 #test cases
@@ -67,7 +85,7 @@ else:
         #SOAPrequest parameters
         req_data = {'dataUltimoEnvio': '1999-01-01',
                     'ultimoRegistro': '0'}
-
+        
         while True:
             print('\n----- %s -----' % datetime.now())
             r = send_request(wsdlAttributes['url'], req_data)
@@ -78,15 +96,19 @@ else:
 
                 input_dict = zeep.helpers.serialize_object(r)
                 js = json.dumps(input_dict, indent=4)
-                filename = 'results/' + str(index) + '-' + wsdlName + '-' + str(r['nRegistro']) + '.json'
+                if not os.path.exists('results/json'):
+                    os.makedirs('results/json')
+                filename = 'results/json/' + str(index) + '-' + wsdlName + '-' + str(r['nRegistro']) + '.json'
                 SOAPresponse = open(filename, 'a')
                 SOAPresponse.write(js)
                 SOAPresponse.close()
-                print('\n----- %s -----\n' % datetime.now())
                 req_data['ultimoRegistro'] = r['nRegistro']
+
+                print('----- %s -----\n' % datetime.now())
 
                 if r['nRegistro'] == r['totalRegistros']:
                     req_data['ultimoRegistro'] = '0'
                     break
             else:
+                print('----- %s -----\n' % datetime.now())
                 break
